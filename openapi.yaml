@@ -1,0 +1,183 @@
+openapi: 3.0.0
+info:
+  title: My First Go Web Server API
+  description: API для моего первого веб-сервера на Go
+  version: 1.0.0
+  contact:
+    name: Василий
+    url: https://github.com/your-username
+
+servers:
+  - url: http://localhost:8080
+    description: Локальный сервер разработки
+  - url: https://api.yourdomain.com
+    description: Продакшен сервер
+
+paths:
+  /:
+    get:
+      summary: Корневая страница API
+      description: Возвращает информацию о доступных эндпоинтах API
+      operationId: rootHandler
+      responses:
+        '200':
+          description: Успешный ответ со списком эндпоинтов
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RootResponse'
+        '404':
+          description: Страница не найдена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/about-me:
+    get:
+      summary: Информация о разработчике
+      description: Возвращает информацию о разработчике и его опыте
+      operationId: aboutMeHandler
+      responses:
+        '200':
+          description: Успешный ответ с информацией о разработчике
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AboutMeResponse'
+
+  /api/why-go:
+    get:
+      summary: Причины изучения Go
+      description: Возвращает причины, по которым разработчик изучает Go
+      operationId: whyGoHandler
+      responses:
+        '200':
+          description: Успешный ответ с причинами изучения Go
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WhyGoResponse'
+
+components:
+  schemas:
+    # Основные структуры ответов
+    Response:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+          description: Статус запроса
+        message:
+          type: string
+          example: Добро пожаловать!
+          description: Сообщение для пользователя
+        data:
+          type: object
+          description: Данные ответа
+
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: error
+        message:
+          type: string
+          example: Страница не найдена
+        data:
+          type: object
+          nullable: true
+
+    # Специфичные структуры данных
+    RootResponse:
+      allOf:
+        - $ref: '#/components/schemas/Response'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                endpoints:
+                  type: array
+                  items:
+                    type: string
+                    example: /api/about-me - Узнать обо мне
+                hint:
+                  type: string
+                  example: Добавьте эти пути к URL в адресной строке
+
+    AboutMeData:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Василий
+        role:
+          type: string
+          example: начинающий backend-разработчик
+        experience:
+          type: string
+          example: не очень большой, но я уже изучил основы Python, С++, написал маленький проект на PHP
+        technologies:
+          type: array
+          items:
+            type: string
+          example: ["Python", "C++", "PHP", "Go (изучаю)"]
+        goal:
+          type: string
+          example: сейчас я начинаю изучать Go с нуля...
+
+    AboutMeResponse:
+      allOf:
+        - $ref: '#/components/schemas/Response'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/AboutMeData'
+
+    WhyGoData:
+      type: object
+      properties:
+        reasons:
+          type: array
+          items:
+            type: string
+          example: ["захотел выучить что-то новое", "сейчас данный язык популярен"]
+        expectations:
+          type: string
+          example: получить структурированное понимание языка...
+        note:
+          type: string
+          example: Получить работу тоже было бы неплохо
+          nullable: true
+
+    WhyGoResponse:
+      allOf:
+        - $ref: '#/components/schemas/Response'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/WhyGoData'
+
+  responses:
+    NotFound:
+      description: Ресурс не найден
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    ServerError:
+      description: Внутренняя ошибка сервера
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+tags:
+  - name: General
+    description: Общие эндпоинты
+  - name: Developer
+    description: Информация о разработчике
